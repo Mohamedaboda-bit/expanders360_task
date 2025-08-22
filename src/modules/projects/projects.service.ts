@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Project } from '../../entities/project.entity';
 import { Service } from '../../entities/service.entity';
 import { Vendor } from '../../entities/vendor.entity';
@@ -67,7 +67,15 @@ export class ProjectsService {
     await this.validateProjectInputs(projectData.service_ids, projectData.country_code);
     const project = this.projectsRepository.create(projectData as CreateProjectDto) ;
     const savedProject = await this.projectsRepository.save(project) ;
-   
+
+    if (projectData.service_ids && projectData.service_ids.length > 0) {
+      await this.projectsRepository
+        .createQueryBuilder()
+        .relation(Project, 'services')
+        .of(savedProject.id)
+        .add(projectData.service_ids);
+    }
+    
     return await this.projectsRepository.findOne({
       where:{id :savedProject.id},
       relations:["services"]
@@ -155,7 +163,7 @@ export class ProjectsService {
 
   private async validateProjectInputs(serviceIds: number[], countryCode: string) {
     if (serviceIds) {
-      const foundServices = await this.servicesRepository.findByIds(serviceIds);
+      const foundServices = await this.servicesRepository.find({ where: { id: In(serviceIds) } });
       if (foundServices.length !== serviceIds.length) {
         const foundIds = foundServices.map(s => s.id);
         const missing = serviceIds.filter(id => !foundIds.includes(id));
