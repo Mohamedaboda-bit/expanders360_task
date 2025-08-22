@@ -162,19 +162,24 @@ export class ProjectsService {
   }
 
   private async validateProjectInputs(serviceIds: number[], countryCode: string) {
-    if (serviceIds) {
-      const foundServices = await this.servicesRepository.find({ where: { id: In(serviceIds) } });
-      if (foundServices.length !== serviceIds.length) {
-        const foundIds = foundServices.map(s => s.id);
-        const missing = serviceIds.filter(id => !foundIds.includes(id));
-        throw new BadRequestException(`Invalid service_ids: ${missing.join(', ')}`);
-      }
+    if (!serviceIds || serviceIds.length === 0) {
+      throw new BadRequestException('service_ids must be a non-empty array');
     }
-    if (countryCode) {
-      const country = await this.countriesRepository.findOne({ where: { country_code: countryCode } });
-      if (!country) {
-        throw new BadRequestException(`Invalid country_code: ${countryCode}`);
-      }
+
+    const foundServices = await this.servicesRepository.find({ where: { id: In(serviceIds) } });
+    if (foundServices.length !== serviceIds.length) {
+      const foundIds = foundServices.map(s => s.id);
+      const missing = serviceIds.filter(id => !foundIds.includes(id));
+      throw new BadRequestException(`Invalid service_ids: ${missing.join(', ')}`);
+    }
+
+    if (!countryCode || countryCode.trim().length === 0) {
+      throw new BadRequestException('country_code must be provided');
+    }
+
+    const country = await this.countriesRepository.findOne({ where: { country_code: countryCode } });
+    if (!country) {
+      throw new BadRequestException(`Invalid country_code: ${countryCode}`);
     }
   }
 }

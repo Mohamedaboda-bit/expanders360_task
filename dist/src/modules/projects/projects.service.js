@@ -145,19 +145,21 @@ let ProjectsService = class ProjectsService {
         return serviceOverlap * 2 + vendor.rating + slaWeight;
     }
     async validateProjectInputs(serviceIds, countryCode) {
-        if (serviceIds) {
-            const foundServices = await this.servicesRepository.find({ where: { id: (0, typeorm_2.In)(serviceIds) } });
-            if (foundServices.length !== serviceIds.length) {
-                const foundIds = foundServices.map(s => s.id);
-                const missing = serviceIds.filter(id => !foundIds.includes(id));
-                throw new common_1.BadRequestException(`Invalid service_ids: ${missing.join(', ')}`);
-            }
+        if (!serviceIds || serviceIds.length === 0) {
+            throw new common_1.BadRequestException('service_ids must be a non-empty array');
         }
-        if (countryCode) {
-            const country = await this.countriesRepository.findOne({ where: { country_code: countryCode } });
-            if (!country) {
-                throw new common_1.BadRequestException(`Invalid country_code: ${countryCode}`);
-            }
+        const foundServices = await this.servicesRepository.find({ where: { id: (0, typeorm_2.In)(serviceIds) } });
+        if (foundServices.length !== serviceIds.length) {
+            const foundIds = foundServices.map(s => s.id);
+            const missing = serviceIds.filter(id => !foundIds.includes(id));
+            throw new common_1.BadRequestException(`Invalid service_ids: ${missing.join(', ')}`);
+        }
+        if (!countryCode || countryCode.trim().length === 0) {
+            throw new common_1.BadRequestException('country_code must be provided');
+        }
+        const country = await this.countriesRepository.findOne({ where: { country_code: countryCode } });
+        if (!country) {
+            throw new common_1.BadRequestException(`Invalid country_code: ${countryCode}`);
         }
     }
 };
