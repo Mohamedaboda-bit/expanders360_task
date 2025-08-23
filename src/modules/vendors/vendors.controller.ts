@@ -1,6 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { VendorsService } from './vendors.service';
 import { Vendor } from '../../entities/vendor.entity';
+import { CreateVendorDto } from './dto/createVendor.dto';
+import { UpdateVendorDto } from './dto/updateVendor.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -13,7 +15,7 @@ export class VendorsController {
 
   @Post()
   @Roles(UserRole.ADMIN)
-  create(@Body() createVendorDto: Partial<Vendor>) {
+  create(@Body() createVendorDto: CreateVendorDto) {
     return this.vendorsService.create(createVendorDto);
   }
 
@@ -31,7 +33,7 @@ export class VendorsController {
 
   @Patch(':id')
   @Roles(UserRole.ADMIN)
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateVendorDto: Partial<Vendor>) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateVendorDto: UpdateVendorDto) {
     return this.vendorsService.update(id, updateVendorDto);
   }
 

@@ -9,6 +9,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { UserRole } from '../../entities/user.entity';
 import { CreateProjectDto } from './dto/createProject.dto';
 import { UpdateProjectDto } from './dto/updateProject.dto';
+import { ApiResponse } from '../../types/api-response.types';
 
 @Controller('projects')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -17,7 +18,7 @@ export class ProjectsController {
 
   @Post()
   @Roles(UserRole.CLIENT)
-  create(@Body() createProjectDto: CreateProjectDto, @CurrentUser() user: any) {
+  create(@Body() createProjectDto: CreateProjectDto, @CurrentUser() user: any): Promise<ApiResponse<Project>> {
     if (user.role === UserRole.CLIENT) {
       createProjectDto['client_id'] = user.clientId;
     }
@@ -26,7 +27,7 @@ export class ProjectsController {
 
   @Get()
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
-  findAll(@CurrentUser() user: any) {
+  findAll(@CurrentUser() user: any): Promise<ApiResponse<Project[]>> {
     if (user.role === UserRole.CLIENT) {
       return this.projectsService.findByClient(user.clientId);
     }
@@ -35,7 +36,7 @@ export class ProjectsController {
 
   @Get(':id')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
-  findOne(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: any) {
+  findOne(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: any): Promise<ApiResponse<Project>> {
     if (user.role === UserRole.CLIENT) {
       return this.projectsService.findOneByClient(id, user.clientId);
     }
@@ -44,7 +45,7 @@ export class ProjectsController {
 
   @Patch(':id')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateProjectDto: UpdateProjectDto, @CurrentUser() user: any) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateProjectDto: UpdateProjectDto, @CurrentUser() user: any): Promise<ApiResponse<Project>> {
     if (user.role === UserRole.CLIENT) {
       return this.projectsService.updateByClient(id, updateProjectDto, user.clientId);
     }
@@ -53,7 +54,7 @@ export class ProjectsController {
 
   @Delete(':id')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
-  remove(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: any) {
+  remove(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: any): Promise<ApiResponse<{ deletedProjectId: number }>> {
     if (user.role === UserRole.CLIENT) {
       return this.projectsService.removeByClient(id, user.clientId);
     }
@@ -62,7 +63,7 @@ export class ProjectsController {
 
   @Post(':id/matches/rebuild')
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
-  rebuildMatches(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: any): Promise<Match[]> {
+  rebuildMatches(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: any): Promise<ApiResponse<Match[]>> {
     if (user.role === UserRole.CLIENT) {
       return this.projectsService.rebuildMatchesByClient(id, user.clientId);
     }

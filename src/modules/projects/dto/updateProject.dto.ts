@@ -17,7 +17,6 @@ export class UpdateProjectDto {
   budget: number;
 
   @AtLeastOneField([
-    'name',
     'country_code',
     'service_ids',
     'budget',

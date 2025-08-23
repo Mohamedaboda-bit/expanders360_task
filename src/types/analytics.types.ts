@@ -8,5 +8,5 @@ export interface TopVendorResult {
     avg_match_score: number;
     total_matches: number;
   }>;
-  expansion_projects_count: number;
+  document_count: number;
 }

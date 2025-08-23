@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class InitialSchema00011699999999999 implements MigrationInterface {
-  name = 'InitialSchema00011699999999999';
+export class InitialSchema1699999999999 implements MigrationInterface {
+  name = 'InitialSchema1699999999999';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`CREATE TABLE IF NOT EXISTS services (

@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { InjectModel } from '@nestjs/mongoose';
 import { Repository } from 'typeorm';
+import { Model } from 'mongoose';
 import { Vendor } from '../../entities/vendor.entity';
 import { Match } from '../../entities/match.entity';
 import { Project } from '../../entities/project.entity';
 import { TopVendorResult } from '../../types/analytics.types';
+import { DocumentEntity, DocumentDocument } from '../documents/schemas/document.schema';
 
 @Injectable()
 export class AnalyticsService {
@@ -15,6 +18,8 @@ export class AnalyticsService {
     private matchesRepository: Repository<Match>,
     @InjectRepository(Project)
     private projectsRepository: Repository<Project>,
+    @InjectModel(DocumentEntity.name)
+    private documentModel: Model<DocumentDocument>,
   ) {}
 
   async getTopVendorsByCountry(): Promise<TopVendorResult[]> {
@@ -51,15 +56,23 @@ export class AnalyticsService {
       countryGroups[vendor.country_code].push(vendor);
     }
 
+    const allProjects = await this.projectsRepository.find({ select: ['id', 'country_code'] });
+    const projectsByCountry: { [country: string]: number[] } = {};
+    for (const project of allProjects) {
+      if (!projectsByCountry[project.country_code]) {
+        projectsByCountry[project.country_code] = [];
+      }
+      projectsByCountry[project.country_code].push(project.id);
+    }
+
     for (const [countryCode, countryVendors] of Object.entries(countryGroups)) {
       const top3 = countryVendors.slice(0, 3);
-      
-      const expansionProjectsCount = await this.projectsRepository.count({
-        where: { 
-          country_code: countryCode,
-          status: 'active'
-        }
-      });
+
+      const projectIds = projectsByCountry[countryCode] || [];
+      let documentCount = 0;
+      if (projectIds.length > 0) {
+        documentCount = await this.documentModel.countDocuments({ projectId: { $in: projectIds } });
+      }
 
       result.push({
         country_code: countryCode,
@@ -71,7 +84,7 @@ export class AnalyticsService {
           avg_match_score: parseFloat(v.avg_match_score),
           total_matches: parseInt(v.total_matches)
         })),
-        expansion_projects_count: expansionProjectsCount
+        document_count: documentCount,
       });
     }
 

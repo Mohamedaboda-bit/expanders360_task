@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddCountriesUsers00021699999999999 implements MigrationInterface {
-  name = 'AddCountriesUsers00021699999999999';
+export class AddCountriesUsers1700000000000 implements MigrationInterface {
+  name = 'AddCountriesUsers1700000000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`CREATE TABLE IF NOT EXISTS countries (
