@@ -11,6 +11,8 @@ import { VendorsModule } from './modules/vendors/vendors.module';
 import { MatchesModule } from './modules/matches/matches.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { DocumentsModule } from './modules/documents/documents.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { SchedulingModule } from './modules/scheduling/scheduling.module';
 import { User } from './entities/user.entity';
 import { Client } from './entities/client.entity';
 import { Project } from './entities/project.entity';
@@ -43,6 +45,8 @@ import { Country } from './entities/country.entity';
     MatchesModule,
     AnalyticsModule,
     DocumentsModule,
+    NotificationsModule,
+    SchedulingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

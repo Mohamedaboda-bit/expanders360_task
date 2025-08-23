@@ -3,6 +3,11 @@ import { Service } from './service.entity';
 import { Match } from './match.entity';
 import { Country } from './country.entity';
 
+export enum VendorSLAStatus {
+  ACTIVE = 'active',
+  EXPIRED = 'expired'
+}
+
 @Entity('vendors')
 export class Vendor {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
@@ -16,6 +21,13 @@ export class Vendor {
 
   @Column({ type: 'int', unsigned: true, default: 0 })
   response_sla_hours: number;
+
+  @Column({
+    type: 'enum',
+    enum: VendorSLAStatus,
+    default: VendorSLAStatus.ACTIVE
+  })
+  sla_status: VendorSLAStatus;
 
   @CreateDateColumn()
   created_at: Date;

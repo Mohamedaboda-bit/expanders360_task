@@ -1,8 +1,7 @@
 import {
   Injectable,
-  NotFoundException,
-  ForbiddenException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -15,9 +14,12 @@ import { CreateProjectDto } from './dto/createProject.dto';
 import { UpdateProjectDto } from './dto/updateProject.dto';
 import { ApiResponseUtil } from '../../utils/api-response.util';
 import { ApiResponse } from '../../types/api-response.types';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class ProjectsService {
+  private readonly logger = new Logger(ProjectsService.name);
+
   constructor(
     @InjectRepository(Project)
     private projectsRepository: Repository<Project>,
@@ -29,6 +31,7 @@ export class ProjectsService {
     private matchesRepository: Repository<Match>,
     @InjectRepository(Country)
     private countriesRepository: Repository<Country>,
+    private notificationsService: NotificationsService,
   ) { }
 
   async findAll(): Promise<ApiResponse<Project[]>> {
@@ -111,7 +114,6 @@ export class ProjectsService {
   }
 
   async update(id: number, projectData: UpdateProjectDto): Promise<ApiResponse<Project>> {
-    // First check if the project exists
     const existingProject = await this.projectsRepository.findOne({
       where: { id },
     });
@@ -163,7 +165,6 @@ export class ProjectsService {
     projectData: UpdateProjectDto,
     clientId: number,
   ): Promise<ApiResponse<Project>> {
-    // First check if the project exists for this client
     const existingProject = await this.projectsRepository.findOne({
       where: { id, client_id: clientId },
     });
@@ -243,7 +244,7 @@ export class ProjectsService {
   async rebuildMatches(projectId: number): Promise<ApiResponse<Match[]>> {
     const project = await this.projectsRepository.findOne({
       where: { id: projectId },
-      relations: ['services'],
+      relations: ['services', 'client'],
     });
 
     if (!project) {
@@ -270,7 +271,16 @@ export class ProjectsService {
       }
     }
 
-    await this.matchesRepository.save(matches);
+    const savedMatches = await this.matchesRepository.save(matches);
+    
+    if (savedMatches.length > 0) {
+      setImmediate(() => {
+        savedMatches.forEach(match => {
+          this.notificationsService.sendMatchNotification(match)
+            .catch(error => this.logger.error('Failed to send match notification:', error));
+        });
+      });
+    }
     
     if (matches.length === 0) {
       return ApiResponseUtil.emptyList('matches', `No matches found for project ${projectId}`);
@@ -295,6 +305,10 @@ export class ProjectsService {
   }
 
   private calculateMatchScore(project: Project, vendor: Vendor): number {
+    if (vendor.sla_status === 'expired') {
+      return 0;
+    }
+
     const vendorCountryCodes = vendor.countries.map((c) => c.country_code);
     if (!vendorCountryCodes.includes(project.country_code)) {
       return 0;
@@ -309,14 +323,12 @@ export class ProjectsService {
     if (serviceOverlap === 0) {
       return 0;
     }
-    // console.log(`service over lap is ${serviceOverlap}`)
+
     const slaWeight = Math.max(0, 24 - vendor.response_sla_hours) / 24;
     const rating = Number(vendor.rating);
     const overlapScore = serviceOverlap * 2;
     const finalScore = Number(overlapScore + rating + slaWeight);
-    
-    console.log(`Vendor: ${vendor.name}, Overlap: ${serviceOverlap}, OverlapScore: ${overlapScore}, Rating: ${rating}, SLA: ${slaWeight}, Final: ${finalScore}`);
-    
+      
     return finalScore;
   }
 
