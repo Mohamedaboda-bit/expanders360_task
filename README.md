@@ -55,66 +55,11 @@ npm run start:dev
 
 ## 📊 Database Schema
 
-### MySQL Tables
-```sql
-clients
-- id (PK)
-- company_name
-- contact_email
+![Database Schema](./docs/schema.md)
 
-projects
-- id (PK)
-- client_id (FK)
-- country_code
-- budget
-- status
-
-project_services (Many-to-Many)
-- project_id (FK)
-- service_id (FK)
-
-vendors
-- id (PK)
-- name
-- rating
-- response_sla_hours
-- sla_status
-
-vendor_countries (Many-to-Many)
-- vendor_id (FK)
-- country_code
-
-vendor_services (Many-to-Many)
-- vendor_id (FK)
-- service_id (FK)
-
-matches
-- id (PK)
-- project_id (FK)
-- vendor_id (FK)
-- score
-- created_at
-```
-
-### MongoDB Collections
-```javascript
-documents
-{
-  _id: ObjectId,
-  projectId: Number,
-  title: String,
-  content: String,
-  tags: [String],
-  created_at: Date
-}
-```
-
-- **Framework**: NestJS with TypeScript
-- **Database**: MySQL (primary) + MongoDB (documents)
-- **ORM**: TypeORM for MySQL, Mongoose for MongoDB
-- **Authentication**: JWT with Passport.js
-- **Validation**: Class-validator DTOs
-- **Security**: Role-based guards and ownership validation
+The platform uses a dual-database architecture:
+- **MySQL**: For core business data and relationships
+- **MongoDB**: For document storage and full-text search capabilities
 
 ## � Setup & Installation
 
@@ -187,18 +132,16 @@ docker-compose exec app npm run seed
 - Document tracking
 - Automated notifications
 
-## 🚀 API Endpoints
+## 🚀 API Documentation
 
-### Authentication
-- `POST /auth/register` - Client registration
-- `POST /auth/login` - User login
+Full API documentation with examples and request/response schemas is available in our [Postman Collection](https://documenter.getpostman.com/view/22818117/2sB3BLk8CL)
 
-### Clients (Protected)
-- `GET /clients` - List all clients (Admin only)
-- `GET /clients/:id` - Get client details (Owner/Admin)
-- `POST /clients` - Create client (Admin only)
-- `PATCH /clients/:id` - Update client (Owner/Admin)
-- `DELETE /clients/:id` - Delete client (Admin only)
+Key endpoints include:
+- Authentication (register/login)
+- Projects management
+- Vendor matching
+- Document handling
+- Analytics
 
 ### Projects (Protected)
 - `GET /projects` - List projects (Client sees own, Admin sees all)
@@ -269,44 +212,7 @@ curl -X GET http://localhost:3000/projects \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-## 🐳 Docker Configuration
-```yaml
-version: '3.8'
-services:
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - DB_HOST=mysql
-      - MONGODB_URI=mongodb://mongo:27017/expander360
-    depends_on:
-      - mysql
-      - mongo
 
-  mysql:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: expander360
-      MYSQL_USER: expander_user
-      MYSQL_PASSWORD: your_password
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-
-  mongo:
-    image: mongo:6.0
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-
-volumes:
-  mysql_data:
-  mongo_data:
-```
 
 ## 📝 Development
 
@@ -345,14 +251,7 @@ npm run test:e2e     # Run E2E tests
   JWT_EXPIRES_IN=24h
   ```
 
-## 🚀 Next Steps
 
-- [ ] Deploy to Railway
-- [ ] Add Swagger API documentation
-- [ ] Implement email notifications
-- [ ] Add request rate limiting
-- [ ] Set up monitoring & logging
-- [ ] Implement caching layer
 
 ---
 
