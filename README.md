@@ -1,6 +1,6 @@
 # Expander360 - Vendor Matching Platform
 
-A NestJS-based platform that matches expansion projects with qualified vendors across different countries.
+A NestJS-based platfom that matches expansion projects with qualified vendors across different countries.
 
 Live Demo: [Coming Soon - Railway Deployment]
 
@@ -85,7 +85,7 @@ docker-compose exec app npm run migration:run
 docker-compose exec app npm run seed
 ```
 
-## 🧰 Tech Stack
+
 
 - NestJS (TypeScript)
 - MySQL with TypeORM
@@ -106,7 +106,7 @@ docker-compose exec app npm run seed
 
 ```
 
-## ⭐ Key Features
+
 
 ### Authentication & Authorization
 - JWT-based authentication
@@ -227,9 +227,6 @@ npm run start         # Start production build
 npm run migration:run # Run migrations
 npm run seed         # Run all seeders
 
-# Utilities
-npm run test         # Run unit tests
-npm run test:e2e     # Run E2E tests
 ```
 
 ### Configuration
