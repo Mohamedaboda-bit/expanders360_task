@@ -43,21 +43,39 @@ export class ClientsSeeder {
     console.log('🏢 Seeding clients and their users...');
     
     for (const clientData of clientsData) {
-      // Create client
-      const client = new Client();
-      client.company_name = clientData.company_name;
-      client.contact_email = clientData.contact_email;
-      
-      await this.dataSource.getRepository(Client).save(client);
+      const clientRepo = this.dataSource.getRepository(Client);
+      const existingClient = await clientRepo.findOne({
+        where: { contact_email: clientData.contact_email }
+      });
 
-      // Create user for this client
-      const user = new User();
-      user.email = clientData.user_email;
-      user.password_hash = await bcrypt.hash(clientData.password, 10);
-      user.role = UserRole.CLIENT;
-      user.client_id = client.id;
-      
-      await this.dataSource.getRepository(User).save(user);
+      let client: Client;
+      if (existingClient) {
+        existingClient.company_name = clientData.company_name;
+        client = await clientRepo.save(existingClient);
+      } else {
+        client = await clientRepo.save({
+          company_name: clientData.company_name,
+          contact_email: clientData.contact_email
+        });
+      }
+
+      const userRepo = this.dataSource.getRepository(User);
+      const existingUser = await userRepo.findOne({
+        where: { email: clientData.user_email }
+      });
+
+      if (existingUser) {
+        existingUser.password_hash = await bcrypt.hash(clientData.password, 10);
+        existingUser.client_id = client.id;
+        await userRepo.save(existingUser);
+      } else {
+        await userRepo.save({
+          email: clientData.user_email,
+          password_hash: await bcrypt.hash(clientData.password, 10),
+          role: UserRole.CLIENT,
+          client_id: client.id
+        });
+      }
     }
 
     console.log('✅ Clients seeded successfully');

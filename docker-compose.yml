@@ -3,21 +3,35 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      network: host
     ports:
       - "3000:3000"
     env_file:
       - .env
     environment:
       - NODE_ENV=production
+      # Override .env values for Docker environment
       - DB_HOST=mysql
-      - DB_PORT=3306
       - DB_USERNAME=root
-      - DB_NAME=expander360
+      - DB_PASSWORD=rootpassword
       - MONGODB_URI=mongodb://mongodb:27017/expander360
     depends_on:
-      - mysql
-      - mongodb
+      mysql:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
 
   mysql:
     image: mysql:8.0.33
@@ -25,14 +39,22 @@ services:
       - MYSQL_ROOT_PASSWORD=rootpassword
       - MYSQL_DATABASE=expander360
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql-data:/var/lib/mysql
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   mongodb:
     image: mongo:6.0.8
@@ -41,12 +63,19 @@ services:
     volumes:
       - mongodb-data:/data/db
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
-      timeout: 10s
+      timeout: 5s
       retries: 5
-      start_period: 40s
+      start_period: 30s
+    command: ["--wiredTigerCacheSizeGB", "0.25"]
 
 volumes:
   mysql-data:

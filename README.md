@@ -1,17 +1,64 @@
-# Expander360 Backend API
+# Expander360 - Vendor Matching Platform
 
-A comprehensive NestJS backend API for managing expansion projects, vendor matching, and research documents.
+A NestJS-based platform that matches expansion projects with qualified vendors across different countries.
 
-## 🚀 Features
+## 🏗️ Architecture
 
-- **JWT Authentication** with role-based access control (Client/Admin)
-- **Project Management** with intelligent vendor matching
-- **Vendor Management** with service and country support
-- **Analytics** with cross-database queries
-- **Document Storage** (MongoDB integration)
-- **MySQL Database** with normalized schema
-- **TypeORM** for database operations
-- **Comprehensive API** with proper validation
+### Database Schema
+
+#### MySQL Tables
+```sql
+clients
+- id (PK)
+- company_name
+- contact_email
+
+projects
+- id (PK)
+- client_id (FK)
+- country_code
+- budget
+- status
+
+project_services (Many-to-Many)
+- project_id (FK)
+- service_id (FK)
+
+vendors
+- id (PK)
+- name
+- rating
+- response_sla_hours
+- sla_status
+
+vendor_countries (Many-to-Many)
+- vendor_id (FK)
+- country_code
+
+vendor_services (Many-to-Many)
+- vendor_id (FK)
+- service_id (FK)
+
+matches
+- id (PK)
+- project_id (FK)
+- vendor_id (FK)
+- score
+- created_at
+```
+
+#### MongoDB Collections
+```javascript
+documents
+{
+  _id: ObjectId,
+  projectId: Number,
+  title: String,
+  content: String,
+  tags: [String],
+  created_at: Date
+}
+```
 
 ## 🏗️ Architecture
 
@@ -22,58 +69,39 @@ A comprehensive NestJS backend API for managing expansion projects, vendor match
 - **Validation**: Class-validator DTOs
 - **Security**: Role-based guards and ownership validation
 
-## 📋 Prerequisites
+## � Setup & Installation
 
-- Node.js 18+
-- MySQL 8.0+
-- MongoDB 6.0+ (for document storage)
-- npm or yarn
-
-## 🛠️ Installation
-
-1. **Clone and Install Dependencies:**
+1. Clone the repository:
 ```bash
-   cd app
-   npm install
-   ```
+git clone https://github.com/Mohamedaboda-bit/expanders360_task.git
+cd app
+```
 
-2. **Environment Configuration:**
-   Create a `.env` file in the `app` directory:
-   ```env
-   # Database Configuration
-   DB_HOST=localhost
-   DB_PORT=3306
-   DB_USERNAME=expander_user
-   DB_PASSWORD=your_secure_password
-   DB_NAME=expander360
-
-   # MongoDB Configuration
-   MONGODB_URI=mongodb://localhost:27017/expander360
-
-   # JWT Configuration
-   JWT_SECRET=your_super_secret_jwt_key_change_in_production
-   JWT_EXPIRES_IN=24h
-
-   # Server Configuration
-   PORT=3000
-   NODE_ENV=development
-   ```
-
-3. **Database Setup:**
+2. Create .env file:
 ```bash
-   # Run migrations
-   npm run migration:run
+cp .env.example .env
+```
 
-   # Seed initial data
-   npm run seed
-   ```
+3. Start with Docker:
+```bash
+docker-compose up -d
+```
 
-4. **Start Development Server:**
-   ```bash
-   npm run start:dev
-   ```
+4. Run migrations and seeders:
+```bash
+docker-compose exec app npm run migration:run
+docker-compose exec app npm run seed
+```
 
-## 🔐 Authentication & Authorization
+## 🧰 Tech Stack
+
+- NestJS (TypeScript)
+- MySQL with TypeORM
+- MongoDB with Mongoose
+- JWT Authentication
+- Docker & Docker Compose
+- Node.js Email Service
+- NestJS Schedule
 
 ### User Roles
 - **Client**: Can manage their own projects and view matches
@@ -84,24 +112,42 @@ A comprehensive NestJS backend API for managing expansion projects, vendor match
 - **Expiration**: Default 24 hours, configurable via `JWT_EXPIRES_IN`
 - **Algorithm**: HS256 (HMAC SHA-256)
 
-### Protected Endpoints
-All endpoints (except auth) require JWT authentication via Bearer token.
+## 🚀 Features
 
-## 📊 Database Schema
+### Authentication & Authorization
+- JWT-based authentication
+- Role-based access control (Client, Admin)
+- Protected routes with Guards
 
-### Core Tables
-- **users**: Authentication and role management
-- **clients**: Company information and contact details
-- **projects**: Expansion project details with requirements
-- **vendors**: Service providers with capabilities
-- **services**: Available service categories
-- **countries**: Geographic support regions
-- **matches**: Project-vendor compatibility scores
+### Project Management
+- CRUD operations for projects
+- Service selection
+- Country-based targeting
+- Budget planning
 
-### Junction Tables
-- **vendor_services**: Vendor-service relationships
-- **vendor_countries**: Vendor geographic coverage
-- **project_services**: Project service requirements
+### Vendor Matching
+- Automated match generation
+- Scoring formula: `services_overlap * 2 + rating + SLA_weight`
+- Match criteria:
+  - Same country coverage
+  - At least one service overlap
+  - Active SLA status
+
+### Document Management (MongoDB)
+- Upload research documents
+- Tag-based organization
+- Full-text search
+- Project association
+
+### Analytics
+- Top vendors by country
+- Match score analysis
+- Document count metrics
+
+### Notifications & Scheduling
+- Email notifications for new matches
+- Daily match refresh for active projects
+- SLA status monitoring
 
 ## 🚀 API Endpoints
 

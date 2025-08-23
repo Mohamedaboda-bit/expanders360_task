@@ -8,6 +8,8 @@ import { Match } from '../../entities/match.entity';
 import { Project } from '../../entities/project.entity';
 import { TopVendorResult } from '../../types/analytics.types';
 import { DocumentEntity, DocumentDocument } from '../documents/schemas/document.schema';
+import { ApiResponseUtil } from '../../utils/api-response.util';
+import { ApiResponse } from '../../types/api-response.types';
 
 @Injectable()
 export class AnalyticsService {
@@ -22,9 +24,10 @@ export class AnalyticsService {
     private documentModel: Model<DocumentDocument>,
   ) {}
 
-  async getTopVendorsByCountry(): Promise<TopVendorResult[]> {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  async getTopVendorsByCountry(): Promise<ApiResponse<TopVendorResult[]>> {
+    try {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const query = `
       SELECT 
@@ -88,6 +91,12 @@ export class AnalyticsService {
       });
     }
 
-    return result;
+    return ApiResponseUtil.successWithCount(result, 'Top vendors by country retrieved successfully');
+    } catch (error) {
+      return ApiResponseUtil.error(
+        'Failed to retrieve top vendors by country',
+        error.message
+      );
+    }
   }
 }
