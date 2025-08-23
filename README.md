@@ -2,11 +2,60 @@
 
 A NestJS-based platform that matches expansion projects with qualified vendors across different countries.
 
-## 🏗️ Architecture
+Live Demo: [Coming Soon - Railway Deployment]
 
-### Database Schema
+## 🔧 Setup & Installation
 
-#### MySQL Tables
+### Using Docker (Recommended)
+1. Clone the repository:
+```bash
+git clone https://github.com/Mohamedaboda-bit/expanders360_task.git
+cd app
+```
+
+2. Create .env file:
+```bash
+cp .env.example .env
+```
+
+3. Start with Docker:
+```bash
+docker-compose up -d
+```
+
+That's it! Docker will handle migrations and seeding automatically.
+
+### Local Development
+1. Prerequisites:
+   - Node.js 18+
+   - MySQL 8.0+
+   - MongoDB 6.0+
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Create and configure .env file:
+```bash
+cp .env.example .env
+# Edit .env file with your local database credentials
+```
+
+4. Run migrations and seeds:
+```bash
+npm run migration:run
+npm run seed
+```
+
+5. Start the application:
+```bash
+npm run start:dev
+```
+
+## 📊 Database Schema
+
+### MySQL Tables
 ```sql
 clients
 - id (PK)
@@ -47,7 +96,7 @@ matches
 - created_at
 ```
 
-#### MongoDB Collections
+### MongoDB Collections
 ```javascript
 documents
 {
@@ -59,8 +108,6 @@ documents
   created_at: Date
 }
 ```
-
-## 🏗️ Architecture
 
 - **Framework**: NestJS with TypeScript
 - **Database**: MySQL (primary) + MongoDB (documents)
@@ -112,42 +159,33 @@ docker-compose exec app npm run seed
 - **Expiration**: Default 24 hours, configurable via `JWT_EXPIRES_IN`
 - **Algorithm**: HS256 (HMAC SHA-256)
 
-## 🚀 Features
+```
+
+## ⭐ Key Features
 
 ### Authentication & Authorization
 - JWT-based authentication
 - Role-based access control (Client, Admin)
 - Protected routes with Guards
 
-### Project Management
-- CRUD operations for projects
-- Service selection
-- Country-based targeting
-- Budget planning
-
-### Vendor Matching
+### Smart Vendor Matching
 - Automated match generation
-- Scoring formula: `services_overlap * 2 + rating + SLA_weight`
-- Match criteria:
-  - Same country coverage
-  - At least one service overlap
-  - Active SLA status
+- Intelligent scoring: `services_overlap * 2 + rating + SLA_weight`
+- Geographic compatibility checks
+- Service type alignment
+- SLA status verification
 
-### Document Management (MongoDB)
-- Upload research documents
-- Tag-based organization
-- Full-text search
-- Project association
+### Project & Document Management
+- Complete project lifecycle management
+- Document upload and organization
+- Tag-based search
+- Full MongoDB integration
 
-### Analytics
-- Top vendors by country
+### Analytics & Monitoring
+- Real-time vendor performance metrics
 - Match score analysis
-- Document count metrics
-
-### Notifications & Scheduling
-- Email notifications for new matches
-- Daily match refresh for active projects
-- SLA status monitoring
+- Document tracking
+- Automated notifications
 
 ## 🚀 API Endpoints
 
@@ -189,55 +227,49 @@ docker-compose exec app npm run seed
 
 ## 🔒 Security Features
 
-### Role-Based Access Control
-- **Client Endpoints**: Limited to own data
-- **Admin Endpoints**: Full system access
-- **Ownership Validation**: Clients can only access their resources
+## 🔒 Security Features
 
-### JWT Security
-- **Token Validation**: Automatic token verification
-- **Role Extraction**: User roles embedded in tokens
-- **Expiration Handling**: Automatic token expiration
-
-### Data Protection
-- **Password Hashing**: Bcrypt with salt rounds
-- **SQL Injection Prevention**: Parameterized queries
-- **Input Validation**: DTO-based request validation
+- **JWT Security**
+  - Token validation & expiration
+  - Role-based authorization
+  - Secure token storage
+- **Data Protection**
+  - Bcrypt password hashing
+  - SQL injection prevention
+  - Input sanitization & validation
+- **Access Control**
+  - Client data isolation
+  - Admin access management
+  - Resource ownership validation
 
 ## 🧪 Testing
 
-### Manual Testing
-1. **Register a new client:**
+### API Testing Examples
 ```bash
-   curl -X POST http://localhost:3000/auth/register \
-     -H "Content-Type: application/json" \
-     -d '{
-       "email": "client@example.com",
-       "password": "password123",
-       "company_name": "Example Corp",
-       "contact_email": "contact@example.com"
-     }'
-   ```
+# Register a new client
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "client@example.com",
+    "password": "password123",
+    "company_name": "Example Corp",
+    "contact_email": "contact@example.com"
+  }'
 
-2. **Login:**
-   ```bash
-   curl -X POST http://localhost:3000/auth/login \
-     -H "Content-Type: application/json" \
-     -d '{
-       "email": "client@example.com",
-       "password": "password123"
-     }'
-   ```
+# Login and get JWT token
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "client@example.com",
+    "password": "password123"
+  }'
 
-3. **Use the returned JWT token for authenticated requests:**
-   ```bash
-   curl -X GET http://localhost:3000/projects \
-     -H "Authorization: Bearer YOUR_JWT_TOKEN"
-   ```
+# Use JWT token for protected endpoints
+curl -X GET http://localhost:3000/projects \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
 
-## 🐳 Docker Deployment
-
-### Docker Compose
+## 🐳 Docker Configuration
 ```yaml
 version: '3.8'
 services:
@@ -276,50 +308,51 @@ volumes:
   mongo_data:
 ```
 
-## 📝 Development Commands
+## 📝 Development
 
+### Commands
 ```bash
 # Development
-npm run start:dev          # Start with hot reload
-npm run build             # Build for production
-npm run start             # Start production build
+npm run start:dev      # Start with hot reload
+npm run build         # Build for production
+npm run start         # Start production build
 
-# Database
-npm run migration:generate # Generate new migration
-npm run migration:run     # Run pending migrations
-npm run migration:revert  # Revert last migration
+# Database Management
+npm run migration:run # Run migrations
+npm run seed         # Run all seeders
 
-# Seeding
-npm run seed              # Run all seeders
-npm run seed:countries    # Seed countries only
-npm run seed:services     # Seed services only
-npm run seed:admin        # Seed admin user only
+# Utilities
+npm run test         # Run unit tests
+npm run test:e2e     # Run E2E tests
 ```
 
-## 🔧 Configuration
-
-### Environment Variables
-- **Database**: Host, port, credentials, name
-- **JWT**: Secret key, expiration time
-- **MongoDB**: Connection URI
-- **Server**: Port, environment
-
-### Database Indexes
-- **Primary Keys**: All tables have auto-incrementing IDs
-- **Foreign Keys**: Properly indexed for performance
-- **Unique Constraints**: Email addresses, country codes
-- **Composite Indexes**: Optimized for common queries
+### Configuration
+- **Database**: Configure in `.env` file
+  ```
+  DB_HOST=localhost
+  DB_PORT=3306
+  DB_USER=your_user
+  DB_PASS=your_pass
+  DB_NAME=expander360
+  ```
+- **MongoDB**: Set connection URI
+  ```
+  MONGODB_URI=mongodb://localhost:27017/expander360
+  ```
+- **JWT**: Security settings
+  ```
+  JWT_SECRET=your_secret_key
+  JWT_EXPIRES_IN=24h
+  ```
 
 ## 🚀 Next Steps
 
-- [ ] Implement document upload/download
-- [ ] Add email notifications
-- [ ] Implement scheduled jobs
-- [ ] Add comprehensive logging
-- [ ] Implement rate limiting
-- [ ] Add API documentation (Swagger)
+- [ ] Deploy to Railway
+- [ ] Add Swagger API documentation
+- [ ] Implement email notifications
+- [ ] Add request rate limiting
+- [ ] Set up monitoring & logging
 - [ ] Implement caching layer
-- [ ] Add monitoring and health checks
 
 ---
 
