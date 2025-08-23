@@ -115,7 +115,47 @@ The platform uses a dual-database architecture:
 - **MongoDB**: For document storage and full-text search capabilities
 
 
-## 📝 Development
+## � API Endpoints
+
+Full API documentation with examples and request/response schemas is available in our [Postman Collection](https://documenter.getpostman.com/view/22818117/2sB3BLk8CL)
+
+### Authentication
+- `POST /auth/register` - Client registration
+- `POST /auth/login` - User login
+
+### Clients (Protected)
+- `GET /clients` - List all clients (Admin only)
+- `GET /clients/:id` - Get client details (Owner/Admin)
+- `POST /clients` - Create client (Admin only)
+- `PATCH /clients/:id` - Update client (Owner/Admin)
+- `DELETE /clients/:id` - Delete client (Admin only)
+
+### Projects (Protected)
+- `GET /projects` - List projects (Client sees own, Admin sees all)
+- `GET /projects/:id` - Get project details (Owner/Admin)
+- `POST /projects` - Create project (Client only)
+- `PATCH /projects/:id` - Update project (Owner/Admin)
+- `DELETE /projects/:id` - Delete project (Owner/Admin)
+- `POST /projects/:id/matches/rebuild` - Rebuild vendor matches
+
+### Vendors (Protected)
+- `GET /vendors` - List all vendors (Admin only)
+- `GET /vendors/:id` - Get vendor details (Admin only)
+- `POST /vendors` - Create vendor (Admin only)
+- `PATCH /vendors/:id` - Update vendor (Admin only)
+- `DELETE /vendors/:id` - Delete vendor (Admin only)
+
+### Matches (Protected)
+- `GET /matches` - List matches (Client sees own, Admin sees all)
+- `GET /matches/:id` - Get match details (Owner/Admin)
+- `GET /matches/project/:projectId` - Get matches for project
+- `GET /matches/vendor/:vendorId` - Get matches for vendor (Admin only)
+- `DELETE /matches/:id` - Delete match (Admin only)
+
+### Analytics (Protected)
+- `GET /analytics/top-vendors` - Top vendors by country (Admin only)
+
+## �📝 Development
 
 ### Commands
 ```bash
