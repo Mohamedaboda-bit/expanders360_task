@@ -57,6 +57,16 @@ npm run start:dev
 
 ```mermaid
 erDiagram
+    users ||--o{ clients : manages
+    users {
+        int id PK
+        string email
+        string password
+        string role
+        datetime created_at
+        datetime updated_at
+    }
+
     clients ||--o{ projects : has
     projects ||--o{ matches : has
     projects }|--|| project_services : has
@@ -70,8 +80,11 @@ erDiagram
     
     clients {
         int id PK
+        int user_id FK
         string company_name
         string contact_email
+        datetime created_at
+        datetime updated_at
     }
 
     projects {
@@ -80,6 +93,8 @@ erDiagram
         string country_code FK
         float budget
         string status
+        datetime created_at
+        datetime updated_at
     }
 
     services {
@@ -87,6 +102,7 @@ erDiagram
         string name
         string description
         datetime created_at
+        datetime updated_at
     }
 
     countries {
@@ -94,11 +110,14 @@ erDiagram
         string name
         string currency
         string region
+        datetime created_at
+        datetime updated_at
     }
 
     project_services {
         int project_id FK
         int service_id FK
+        datetime created_at
     }
 
     vendors {
@@ -107,16 +126,20 @@ erDiagram
         float rating
         int response_sla_hours
         string sla_status
+        datetime created_at
+        datetime updated_at
     }
 
     vendor_countries {
         int vendor_id FK
         string country_code FK
+        datetime created_at
     }
 
     vendor_services {
         int vendor_id FK
         int service_id FK
+        datetime created_at
     }
 
     matches {
@@ -125,6 +148,7 @@ erDiagram
         int vendor_id FK
         float score
         datetime created_at
+        datetime updated_at
     }
 ```
 
