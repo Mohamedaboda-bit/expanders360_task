@@ -98,18 +98,15 @@ erDiagram
     }
 
     services {
-        int id PK
-        string name
-        string description
+        bigint id PK
+        varchar(100) name UK
         datetime created_at
         datetime updated_at
     }
 
     countries {
-        string code PK
-        string name
-        string currency
-        string region
+        char(2) country_code PK
+        varchar(100) country_name
         datetime created_at
         datetime updated_at
     }
