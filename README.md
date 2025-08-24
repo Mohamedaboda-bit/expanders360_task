@@ -2,7 +2,7 @@
 
 A NestJS-based platfom that matches expansion projects with qualified vendors across different countries.
 
-Live Demo: [Coming Soon - Railway Deployment]
+Live Demo: [http://109.106.244.241:3001](http://109.106.244.241:3001)
 
 ## 🔧 Setup & Installation
 
