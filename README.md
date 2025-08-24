@@ -63,6 +63,10 @@ erDiagram
     vendors ||--o{ matches : has
     vendors }|--|| vendor_services : has
     vendors }|--|| vendor_countries : has
+    services ||--o{ project_services : used_in
+    services ||--o{ vendor_services : provided_by
+    countries ||--o{ vendor_countries : operates_in
+    countries ||--o{ projects : located_in
     
     clients {
         int id PK
@@ -73,9 +77,23 @@ erDiagram
     projects {
         int id PK
         int client_id FK
-        string country_code
+        string country_code FK
         float budget
         string status
+    }
+
+    services {
+        int id PK
+        string name
+        string description
+        datetime created_at
+    }
+
+    countries {
+        string code PK
+        string name
+        string currency
+        string region
     }
 
     project_services {
@@ -93,7 +111,7 @@ erDiagram
 
     vendor_countries {
         int vendor_id FK
-        string country_code
+        string country_code FK
     }
 
     vendor_services {
